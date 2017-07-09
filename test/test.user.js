@@ -1,8 +1,14 @@
 // ==UserScript==
-// @description Dummy script for testing Greasy Fork's syncing capabilities
-// @name        Test
-// @version     1
-// @namespace https://greasyfork.org/users/83187
+// @name            Test
+// @description     Dummy script for testing Greasy Fork's syncing capabilities
+// @author          ForgottenUmbrella
+// @namespace       https://greasyfork.org/users/83187
+// @version         1
+// @match           *
 // ==/UserScript==
 
-console.log("Hi");
+(function()
+{
+    "use strict";
+    console.log("Hi");
+})();
