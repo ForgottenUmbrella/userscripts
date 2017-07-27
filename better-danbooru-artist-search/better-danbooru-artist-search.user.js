@@ -3,7 +3,7 @@
 // @version      3.6.3
 // @description  Improve URL handling within the Danbooru artist search engine and automatically navigate to the wiki page if indubitable.
 // @author       ForgottenUmbrella
-// @match        https://danbooru.donmai.us/artists?*
+// @match        *://danbooru.donmai.us/artists?*
 // @namespace    https://greasyfork.org/users/83187
 // ==/UserScript==
 
