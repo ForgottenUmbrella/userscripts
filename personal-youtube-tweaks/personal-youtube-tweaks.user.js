@@ -85,10 +85,7 @@ function in_string(string, label) {
     channel = channel.firstElementChild.text.toLowerCase();
     var in_title = in_string(title, "Title");
     var in_channel_name = in_string(channel, "Channel");
-    // Also too long.
-    var jap_chars = new RegExp(
-        /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f/.source
-        + /\u4e00-\u9faf\u3400-\u4dbf/【】「」]/.source);
+    var jap_chars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
     var music_indication = [
         jap_chars, "midi", "touhou", "music", "piano", "vocal", "arrange",
         "theme",  "album", "toho", /feat\./, /.* - .*/, "soundtrack",
