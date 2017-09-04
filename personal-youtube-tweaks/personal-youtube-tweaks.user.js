@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Personal YouTube Tweaks
 // @description Prevent automatically switching to share panel & autoplay, and change music volume & speed.
-// @include     *youtube.com/watch?*
+// @include     *://www.youtube.com/watch?*
 // @version     2.8.1
 // @author      edlolington, ForgottenUmbrella and Yonezpt
 // @namespace   https://greasyfork.org/users/83187
@@ -18,7 +18,7 @@ function removeAPUN() {
 }
 
 
-// Borrowed:from http://userscripts-mirror.org/scripts/review/174719.
+// Borrowed from http://userscripts-mirror.org/scripts/review/174719.
 var keyword = "action-panel-trigger";
 var shareBtn;
 
@@ -53,7 +53,7 @@ function in_string(string, label) {
     window.addEventListener("readystatechange", removeAPUN, true);
     window.addEventListener("spfdone", removeAPUN);
 
-    // Borrowed:from http://userscripts-mirror.org/scripts/review/174719.
+    // Borrowed from http://userscripts-mirror.org/scripts/review/174719.
     var panelBtns = (function() {
         var result = [];
         var btns = document.getElementsByTagName("button");
@@ -79,9 +79,10 @@ function in_string(string, label) {
     // Change audio, speed and quality for videos presumed to be music.
     var player = document.getElementsByClassName("html5-video-player")[0];
     // var prev_vol = player.getVolume();
-    var title = document.getElementById("eow-title").title.toLowerCase();
-    // It's too long, so it had to be split into two parts.
-    var channel = document.getElementsByClassName("yt-user-info")[0];
+    var title =
+        document.getElementsByClassName("title").innerText.toLowerCase();
+    var channel =
+        document.getElementById("owner-name").innerText.toLowerCase();
     channel = channel.firstElementChild.text.toLowerCase();
     var in_title = in_string(title, "Title");
     var in_channel_name = in_string(channel, "Channel");
