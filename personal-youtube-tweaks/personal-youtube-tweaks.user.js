@@ -2,7 +2,7 @@
 // @name        Personal YouTube Tweaks
 // @description Prevent automatically switching to share panel & autoplay, and change music volume & speed.
 // @include     *://www.youtube.com/watch?*
-// @version     2.8.1
+// @version     2.9.0
 // @author      edlolington, ForgottenUmbrella and Yonezpt
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
