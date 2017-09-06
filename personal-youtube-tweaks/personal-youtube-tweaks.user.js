@@ -2,7 +2,7 @@
 // @name        Personal YouTube Tweaks
 // @description Prevent automatically switching to share panel & autoplay, and change music volume & speed.
 // @include     *://www.youtube.com/watch?*
-// @version     2.9.0
+// @version     2.10.0
 // @author      edlolington, ForgottenUmbrella and Yonezpt
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
@@ -18,12 +18,34 @@ function removeAPUN() {
 }
 
 
-// Borrowed from http://userscripts-mirror.org/scripts/review/174719.
-var keyword = "action-panel-trigger";
-var shareBtn;
+// Modified from http://userscripts-mirror.org/scripts/review/174719.
+function disable_share_on_like() {
+    var keyword = "action-panel-trigger";
+    var panelBtns = (function() {
+        var result = [];
+        var btns = document.getElementsByTagName("button");
+        for (var i=0; i < btns.length; i++) {
+            if (btns[i].className.indexOf(keyword) != -1) {
+                result.push(btns[i]);
+            }
+        }
+        return result;
+    })();
+    var shareBtn;
+    for (var i = 0; i < panelBtns.length; i++) {
+            if (panelBtns[i].getAttribute("data-trigger-for") ==
+                "action-panel-share") {
+                shareBtn = panelBtns[i];
+                shareBtn.setAttribute("data-trigger-for", "blank");
+            shareBtn.addEventListener("click", function() {
+                shareBtnToggle(shareBtn);
+            }, false);
+        }
+    }
+}
 
 
-function shareBtnToggle() {
+function shareBtnToggle(shareBtn) {
     //alert("You clicked the share button.");
     shareBtn.setAttribute("data-trigger-for", "action-panel-share");
     window.setTimeout(function(){ shareBtn.setAttribute("data-trigger-for",
@@ -48,42 +70,13 @@ function in_string(string, label) {
 }
 
 
-(function() {
-    "use strict";
-    window.addEventListener("readystatechange", removeAPUN, true);
-    window.addEventListener("spfdone", removeAPUN);
-
-    // Borrowed from http://userscripts-mirror.org/scripts/review/174719.
-    var panelBtns = (function() {
-        var result = [];
-        var btns = document.getElementsByTagName("button");
-        for (var i=0; i < btns.length; i++) {
-            if (btns[i].className.indexOf(keyword) != -1) {
-                result.push(btns[i]);
-            }
-        }
-        return result;
-    })();
-    for (var i = 0; i < panelBtns.length; i++) {
-            if (panelBtns[i].getAttribute("data-trigger-for") ==
-                "action-panel-share") {
-                shareBtn = panelBtns[i];
-                shareBtn.setAttribute("data-trigger-for", "blank");
-            shareBtn.addEventListener("click", shareBtnToggle, false);
-        }
-    }
-    // End borrowing.
-
-    console.log("(YT Tweaks) Script running");
-
+function adjust_for_music(player) {
     // Change audio, speed and quality for videos presumed to be music.
-    var player = document.getElementsByClassName("html5-video-player")[0];
     // var prev_vol = player.getVolume();
     var title =
         document.getElementsByClassName("title").innerText.toLowerCase();
     var channel =
         document.getElementById("owner-name").innerText.toLowerCase();
-    channel = channel.firstElementChild.text.toLowerCase();
     var in_title = in_string(title, "Title");
     var in_channel_name = in_string(channel, "Channel");
     var jap_chars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
@@ -110,8 +103,8 @@ function in_string(string, label) {
         // player.setPlaybackRate(1);
     } else {
         player.setVolume(100);
-	    player.setPlaybackRate(2);
-	    console.log("(YT Tweaks) Set volume to 100 and rate to 2");
+        player.setPlaybackRate(2);
+        console.log("(YT Tweaks) Set volume to 100 and rate to 2");
     }
 
     // if (player.getPlayerState() > -1) {
@@ -119,4 +112,24 @@ function in_string(string, label) {
     // } else {
     //     setTimeout(function(){ player.setPlaybackQuality("medium"); }, 5000);
     // }
+}
+
+
+function enable_captions(player) {
+    player.loadModule("captions");
+    player.setOption("captions", "track", {"languageCode": "en"});
+}
+
+
+(function() {
+    "use strict";
+    console.log("(YT Tweaks) Script running");
+    window.addEventListener("readystatechange", removeAPUN, true);
+    window.addEventListener("spfdone", removeAPUN);
+    disable_share_on_like();
+    console.log("(YT Tweaks) Disabled share button");
+    var player = document.getElementById("movie_player");
+    adjust_for_music(player);
+    // enable_captions(player);
+    // console.log("(YT Tweaks) Enabled captions (if possible)");
 })();
