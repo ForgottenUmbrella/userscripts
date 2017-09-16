@@ -2,7 +2,7 @@
 // @name        Personal YouTube Tweaks
 // @description Prevent automatically switching to share panel & autoplay, and change music volume & speed.
 // @include     *://www.youtube.com/watch?*
-// @version     2.10.0
+// @version     2.10.1
 // @author      edlolington, ForgottenUmbrella and Yonezpt
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
@@ -74,7 +74,7 @@ function adjust_for_music(player) {
     // Change audio, speed and quality for videos presumed to be music.
     // var prev_vol = player.getVolume();
     var title =
-        document.getElementsByClassName("title").innerText.toLowerCase();
+        document.getElementsByClassName("title")[0].innerText.toLowerCase();
     var channel =
         document.getElementById("owner-name").innerText.toLowerCase();
     var in_title = in_string(title, "Title");
