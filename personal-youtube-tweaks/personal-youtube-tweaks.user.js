@@ -2,7 +2,7 @@
 // @name        Personal YouTube Tweaks
 // @description Prevent automatically switching to share panel & autoplay, and change music volume & speed.
 // @include     *://www.youtube.com/watch?*
-// @version     2.10.1
+// @version     2.10.2
 // @author      edlolington, ForgottenUmbrella and Yonezpt
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
@@ -76,7 +76,12 @@ function adjust_for_music(player) {
     var title =
         document.getElementsByClassName("title")[0].innerText.toLowerCase();
     var channel =
-        document.getElementById("owner-name").innerText.toLowerCase();
+        // For new Polymer layout (which doesn't work at all).
+        // document.getElementById("owner-name").innerText.toLowerCase();
+        // For old (non-Polymer) layout.
+        document.getElementsByClassName(
+            "yt-user-info"
+        )[0].children[0].text.toLowerCase();
     var in_title = in_string(title, "Title");
     var in_channel_name = in_string(channel, "Channel");
     var jap_chars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
