@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         View Full Twitter Image
-// @version      1.2.4
+// @version      1.2.5
 // @description  Undo Twitter's insistence to down-res images when viewing on its dedicated page and add a button to download the full image without the weird file extensions which don't count as actual images.
 // @author       ForgottenUmbrella
 // @match        https://pbs.twimg.com/media/*
@@ -84,7 +84,7 @@ function download(filename) {
     document.body.insertBefore(spacing, image);
 
     var button = document.createElement("button");
-    button.value = "Download";
+    button.innerHTML = "Download";
     var filename = location.href.slice(
         "https://pbs.twimg.com/media/".length,
         location.href.length - ":orig".length
