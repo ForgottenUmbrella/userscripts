@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         View Full Twitter Image
-// @version      1.2.3
+// @version      1.2.4
 // @description  Undo Twitter's insistence to down-res images when viewing on its dedicated page and add a button to download the full image without the weird file extensions which don't count as actual images.
 // @author       ForgottenUmbrella
 // @match        https://pbs.twimg.com/media/*
@@ -9,61 +9,95 @@
 // @namespace    https://greasyfork.org/users/83187
 // ==/UserScript==
 
+// function createButton(text, func) {
+//     "use strict";
+//     var button = document.createElement("button");
+//     button.value = text;
+//     button.onclick = func;
+//     document.body.appendChild(button);
+// }
 
-function dom_create(type, text, after, func, style) {
+function download(filename) {
     "use strict";
-    if (typeof style === "undefined") {
-        style = {};
-    }
-    var element = document.createElement(type);
-    var t = document.createTextNode(text);
-    element.appendChild(t);
-    element.onclick = func;
-    element.style.height = style.height;
-    element.style.width = style.width;
-    element.style.marginLeft = style.margin_left;
-    element.style.marginRight = style.margin_right;
-    element.style.marginTop = style.margin_top;
-    element.style.marginBottom = style.margin_bottom;
-    document.body.insertBefore(element, after);
-    return element;
+    var element = document.createElement("a");
+    // The `download` attribute only works if `href` is set.
+    element.href = location.href;
+    element.download = filename;
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
 }
 
+// function domCreate(type, after, func, text, style) {
+//     "use strict";
+//     var element = document.createElement(type);
+//     document.body.insertBefore(element, after);
+//     if (typeof func !== "undefined") {
+//         element.onclick = func;
+//     }
+//     if (typeof text !== "undefined") {
+//         var t = document.createTextNode(text);
+//         element.appendChild(t);
+//     }
+//     if (typeof style !== "undefined") {
+//         element.style.height = style.height;
+//         element.style.width = style.width;
+//         element.style.marginLeft = style.margin_left;
+//         element.style.marginRight = style.margin_right;
+//         element.style.marginTop = style.margin_top;
+//         element.style.marginBottom = style.margin_bottom;
+//     }
+//     return element;
+// }
 
-function download_pic() {
-    "use strict";
-    var dl = document.createElement("a");
-    var not_filename = "https://pbs.twimg.com/media/";
-    var not_filetype = ":orig";
-    var filename = location.href.slice(
-        not_filename.length, location.href.length - not_filetype.length);
-    dl.href = location.href;
-    dl.setAttribute("download", filename);
-    dl.click();
-}
+// function downloadPic() {
+//     "use strict";
+//     var link = document.createElement("a");
+//     var notFilename = "https://pbs.twimg.com/media/";
+//     var notFiletype = ":orig";
+//     var filename = location.href.slice(
+//         notFilename.length, location.href.length - notFiletype.length);
+//     link.href = location.href;
+//     link.setAttribute("download", filename);
+//     link.click();
+// }
 
-
-// function iqdb_search() {
+// function iqdbSearch() {
 //     "use strict";
 //     location.href = "https://iqdb.org?url=" + location.href;
 // }
 
-
 (function() {
     "use strict";
     console.log("(Full Image) Running.");
-    if (window.location.href.includes(":large")) {
+    if (location.href.includes(":large")) {
         console.log("(Full Image) Will replace large with original.");
-        window.location.href = window.location.href.replace(":large", ":orig");
-    } else if (!window.location.href.includes(":orig")) {
+        location.href = location.href.replace(":large", ":orig");
+    } else if (!location.href.includes(":orig")) {
         console.log("(Full Image) Will change URL to original.");
-        window.location.href += ":orig";
+        location.href += ":orig";
     }
 
-    var img = document.getElementsByTagName("img")[0];
-    var spacing = dom_create("p", "", img);
-    var btn = dom_create("button", "Download", spacing, download_pic);
-    // var btn_2 = dom_create(
-    //     "button", "IQDB Search", spacing, iqdb_search, {
+    var spacing = document.createElement("p");
+    var image = document.getElementsByTagName("img")[0];
+    document.body.insertBefore(spacing, image);
+
+    var button = document.createElement("button");
+    button.value = "Download";
+    var filename = location.href.slice(
+        "https://pbs.twimg.com/media/".length,
+        location.href.length - ":orig".length
+    );
+    button.onclick = function() {
+        download(filename);
+    };
+    document.body.insertBefore(button, spacing);
+    // On Chrome, the button appears atop the image; on Firefox, to the left.
+
+    // var spacing = domCreate("p", image);
+    // var btn = domCreate("button", spacing, downloadPic, "Download");
+    // var btn_2 = domCreate(
+    //     "button", spacing, iqdbSearch, "IQDB Search", {
     //             margin_left: "20px"});
 })();
