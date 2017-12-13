@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         View Full Twitter Image
-// @version      1.2.2
+// @version      1.2.3
 // @description  Undo Twitter's insistence to down-res images when viewing on its dedicated page and add a button to download the full image without the weird file extensions which don't count as actual images.
 // @author       ForgottenUmbrella
 // @match        https://pbs.twimg.com/media/*
