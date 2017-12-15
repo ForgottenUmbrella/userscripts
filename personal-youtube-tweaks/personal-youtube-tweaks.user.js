@@ -2,7 +2,7 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos and lower music volume.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.0
+// @version     3.0.1
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
@@ -136,7 +136,7 @@ function adjustForMusic(player)
 function adjustForMusic(player)
 {
     let nonPolymerTitle = document.getElementsByClassName("eow-title")[0];
-    let isPolymer = (nonPolymerTitle === undefined);
+    let isPolymer = (nonPolymerTitle == null);
     let title;
     let channel;
     if (isPolymer)
@@ -144,7 +144,7 @@ function adjustForMusic(player)
         setTimeout(function setTitle()
             {
                 let titleElements = document.getElementsByClassName("title");
-                if (titleElements[0] === undefined)
+                if (titleElements[0] == null)
                 {
                     setTimeout(setTitle, WAIT);
                     return;
@@ -156,7 +156,7 @@ function adjustForMusic(player)
         setTimeout(function setChannel()
             {
                 let channelElement = document.getElementById("owner-name");
-                if (channelElement === undefined)
+                if (channelElement == null)
                 {
                     setTimeout(setChannel, WAIT);
                     return;
