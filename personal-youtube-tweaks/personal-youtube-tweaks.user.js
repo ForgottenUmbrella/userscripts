@@ -1,67 +1,82 @@
 // ==UserScript==
 // @name        Personal YouTube Tweaks
-// @description Prevent automatically switching to share panel & autoplay, and change music volume & speed.
+// @description Speed up videos and lower music volume.
 // @include     *://www.youtube.com/watch?*
-// @version     2.10.2
-// @author      edlolington, ForgottenUmbrella and Yonezpt
+// @version     3.0.0
+// @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
+// CHANG'E LOG (are you watching?):
+// Remove autoplay disable (permanent)
+// Arbitrary code style changes
+// Make search work again
+// Work on Polymer YouTube
+// Remove quality change (commented)
 
-function removeAPUN() {
-    // Borrowed from https://gist.github.com/Yonezpt/51adf278a24488f75ff0.
-    var autoplaybar = document.getElementsByClassName("autoplay-bar")[0];
-    if (autoplaybar) {
-        autoplaybar.removeAttribute("class");
-        document.getElementsByClassName("checkbox-on-off")[0].remove();
-    }
-}
-
+let WAIT = 1000;
 
 // Modified from http://userscripts-mirror.org/scripts/review/174719.
-function disable_share_on_like() {
-    var keyword = "action-panel-trigger";
-    var panelBtns = (function() {
-        var result = [];
-        var btns = document.getElementsByTagName("button");
-        for (var i=0; i < btns.length; i++) {
-            if (btns[i].className.indexOf(keyword) != -1) {
+function shareBtnToggle(shareBtn)
+{
+    // alert("You clicked the share button.");
+    shareBtn.setAttribute("data-trigger-for", "action-panel-share");
+    window.setTimeout(
+        function()
+        {
+            shareBtn.setAttribute("data-trigger-for", "blank");
+        },
+        5000
+    );
+}
+
+// Also modified from the above source.
+function disableShareOnLike()
+{
+    let keyword = "action-panel-trigger";
+    let panelBtns = (function()
+    {
+        let result = [];
+        let btns = document.getElementsByTagName("button");
+        for (let i=0; i < btns.length; i++)
+        {
+            if (btns[i].className.indexOf(keyword) != -1)
+            {
                 result.push(btns[i]);
             }
         }
         return result;
     })();
-    var shareBtn;
-    for (var i = 0; i < panelBtns.length; i++) {
-            if (panelBtns[i].getAttribute("data-trigger-for") ==
-                "action-panel-share") {
-                shareBtn = panelBtns[i];
-                shareBtn.setAttribute("data-trigger-for", "blank");
-            shareBtn.addEventListener("click", function() {
-                shareBtnToggle(shareBtn);
-            }, false);
+    let shareBtn;
+    let dataTrigger;
+    for (let i = 0; i < panelBtns.length; i++)
+    {
+        dataTrigger = panelBtns[i].getAttribute("data-trigger-for");
+        if (dataTrigger == "action-panel-share")
+        {
+            shareBtn = panelBtns[i];
+            shareBtn.setAttribute("data-trigger-for", "blank");
+            shareBtn.addEventListener(
+                "click", function()
+                {
+                    shareBtnToggle(shareBtn);
+                }, false
+            );
         }
     }
 }
 
-
-function shareBtnToggle(shareBtn) {
-    //alert("You clicked the share button.");
-    shareBtn.setAttribute("data-trigger-for", "action-panel-share");
-    window.setTimeout(function(){ shareBtn.setAttribute("data-trigger-for",
-        "blank"); }, 1000);
-}
-// End borrowing.
-
-
-function in_string(string, label) {
-    if (label === undefined) {
+function inString(string, label)
+{
+    if (label === undefined)
+    {
         label = "";
     }
     function inner(trigger)
     {
-        var match = ~string.search(trigger);
-        if (match) {
+        let match = (string.indexOf(trigger) > -1);
+        if (match)
+        {
             console.log("(YT Tweaks) " + label + " trigger: " + trigger);
         }
         return match;
@@ -69,72 +84,157 @@ function in_string(string, label) {
     return inner;
 }
 
+// Change audio, speed and quality for videos presumed to be music.
+function adjustForMusic(player)
+{
+    // For old (non-Polymer) layout.
+    let title = document.getElementsByClassName("eow-title").innerText.toLowerCase();
+    let inTitle = inString(title, "Title");
 
-function adjust_for_music(player) {
-    // Change audio, speed and quality for videos presumed to be music.
-    // var prev_vol = player.getVolume();
-    var title =
-        document.getElementsByClassName("title")[0].innerText.toLowerCase();
-    var channel =
-        // For new Polymer layout (which doesn't work at all).
-        // document.getElementById("owner-name").innerText.toLowerCase();
-        // For old (non-Polymer) layout.
-        document.getElementsByClassName(
-            "yt-user-info"
-        )[0].children[0].text.toLowerCase();
-    var in_title = in_string(title, "Title");
-    var in_channel_name = in_string(channel, "Channel");
-    var jap_chars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
-    var music_indication = [
-        jap_chars, "midi", "touhou", "music", "piano", "vocal", "arrange",
+    let channel = document.getElementsByClassName("yt-user-info")[0]
+        .innerText
+        .toLowerCase();
+
+    let inChannelName = inString(channel, "Channel");
+
+    let japChars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
+    let musicWords = [
+        japChars, "midi", "touhou", "music", "piano", "vocal", "arrange",
         "theme",  "album", "toho", /feat\./, /.* - .*/, "soundtrack",
         /.* ~ .*/, /(^|[^a-z])cover/, "song", /(^|[^a-z])op/, /(^|[^a-z])ep/,
-        "remix", "arrangement", /(^|[^a-z])c[0-9][0-9]/, "pv"];
+        "remix", "arrangement", /(^|[^a-z])c[0-9][0-9]/, "pv"
         // /('s|[1-6]|stage) theme/
-    var other_indication = [
+    ];
+    let notMusicWords = [
         "play", /(^|[^a-z])ep [0-9]/, "stream", "minecraft", "dlc", "games",
         "online", "episode", /part [0-9]/, /episode [0-9]/,
         "1cc", /(^|[^a-z])clear/, /#[0-9]/, "no miss", "no bomb", "scoring",
-        "gmod", "spellcard", "nmnb", "no deaths"];
-    var channel_blacklist = [
+        "gmod", "spellcard", "nmnb", "no deaths"
+    ];
+    let channelBlacklist = [
         "sips", "yogscast", "mamamax", "computerphile", "numberphile",
-        "pewdiepie", "nakateleeli", "magiftw", "sixty symbols"];
+        "pewdiepie", "nakateleeli", "magiftw", "sixty symbols"
+    ];
 
     // Short-circuits.
-    if (music_indication.some(in_title) && !other_indication.some(in_title)
-        && !channel_blacklist.some(in_channel_name)) {
+    if (musicWords.some(inTitle) && !notMusicWords.some(inTitle)
+        && !channelBlacklist.some(inChannelName))
+    {
         player.setVolume(25);
         console.log("(YT Tweaks) Set volume to 25");
         // player.setPlaybackRate(1);
-    } else {
+    }
+    else
+    {
         player.setVolume(100);
         player.setPlaybackRate(2);
         console.log("(YT Tweaks) Set volume to 100 and rate to 2");
     }
-
-    // if (player.getPlayerState() > -1) {
-        player.setPlaybackQuality("medium");
-    // } else {
-    //     setTimeout(function(){ player.setPlaybackQuality("medium"); }, 5000);
-    // }
 }
 
+// Change audio, speed and quality for videos presumed to be music.
+function adjustForMusic(player)
+{
+    let nonPolymerTitle = document.getElementsByClassName("eow-title")[0];
+    let isPolymer = (nonPolymerTitle === undefined);
+    let title;
+    let channel;
+    if (isPolymer)
+    {
+        setTimeout(function setTitle()
+            {
+                let titleElements = document.getElementsByClassName("title");
+                if (titleElements[0] === undefined)
+                {
+                    setTimeout(setTitle, WAIT);
+                    return;
+                }
+                title = titleElements[0].innerText.toLowerCase();
+            }, WAIT
+        );
 
-function enable_captions(player) {
-    player.loadModule("captions");
-    player.setOption("captions", "track", {"languageCode": "en"});
+        setTimeout(function setChannel()
+            {
+                let channelElement = document.getElementById("owner-name");
+                if (channelElement === undefined)
+                {
+                    setTimeout(setChannel, WAIT);
+                    return;
+                }
+                channel = channelElement.innerText.toLowerCase();
+            }, WAIT
+        );
+    }
+    else
+    {
+        title = nonPolymerTitle.innerText.toLowerCase();
+        channel = document.getElementsByClassName("yt-user-info")[0]
+            .innerText
+            .toLowerCase();
+    }
+    let inTitle = inString(title, "Title");
+    let inChannelName = inString(channel, "Channel");
+
+    let japChars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
+    let musicWords = [
+        japChars, "midi", "touhou", "music", "piano", "vocal", "arrange",
+        "theme",  "album", "toho", /feat\./, /.* - .*/, "soundtrack",
+        /.* ~ .*/, /(^|[^a-z])cover/, "song", /(^|[^a-z])op/, /(^|[^a-z])ep/,
+        "remix", "arrangement", /(^|[^a-z])c[0-9][0-9]/, "pv"
+        // /('s|[1-6]|stage) theme/
+    ];
+    let notMusicWords = [
+        "play", /(^|[^a-z])ep [0-9]/, "stream", "minecraft", "dlc", "games",
+        "online", "episode", /part [0-9]/, /episode [0-9]/,
+        "1cc", /(^|[^a-z])clear/, /#[0-9]/, "no miss", "no bomb", "scoring",
+        "gmod", "spellcard", "nmnb", "no deaths"
+    ];
+    let channelBlacklist = [
+        "sips", "yogscast", "mamamax", "computerphile", "numberphile",
+        "pewdiepie", "nakateleeli", "magiftw", "sixty symbols"
+    ];
+
+    let isMusic = (
+        musicWords.some(inTitle)
+        && !notMusicWords.some(inTitle)
+        && !channelBlacklist.some(inChannelName)
+    );
+    if (isMusic)
+    {
+        player.setVolume(25);
+        console.log("(YT Tweaks) Set volume to 25");
+    }
+    else
+    {
+        player.setVolume(100);
+        player.setPlaybackRate(2);
+        console.log("(YT Tweaks) Set volume to 100 and rate to 2");
+    }
 }
 
+// function asyncSetQuality(player, quality)
+// {
+//     if (player.getPlayerState() > -1)
+//     {
+//         player.setPlaybackQuality(quality);
+//     }
+//     else
+//     {
+//         setTimeout(function()
+//             {
+//                 asyncSetQuality(player, quality);
+//             }, WAIT
+//         );
+//     }
+// }
 
-(function() {
+(function()
+{
     "use strict";
     console.log("(YT Tweaks) Script running");
-    window.addEventListener("readystatechange", removeAPUN, true);
-    window.addEventListener("spfdone", removeAPUN);
-    disable_share_on_like();
-    console.log("(YT Tweaks) Disabled share button");
-    var player = document.getElementById("movie_player");
-    adjust_for_music(player);
-    // enable_captions(player);
-    // console.log("(YT Tweaks) Enabled captions (if possible)");
+    disableShareOnLike();  // Does nothing on Polymer YouTube.
+    console.log("(YT Tweaks) Disabled auto-share");
+    let player = document.getElementById("movie_player");
+    adjustForMusic(player);
+    // asyncSetQuality(player, "medium");
 })();
