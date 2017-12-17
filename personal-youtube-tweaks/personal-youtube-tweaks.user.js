@@ -1,18 +1,20 @@
 // ==UserScript==
 // @name        Personal YouTube Tweaks
-// @description Speed up videos and lower music volume.
+// @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.1
+// @version     3.0.2
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// Remove autoplay disable (permanent)
-// Arbitrary code style changes
-// Make search work again
-// Work on Polymer YouTube
-// Remove quality change (commented)
+// Update descriptions
+// Make it work on Polymer YouTube?
+
+// TODO
+// const
+// anonymous functions to arrows
+// default params
 
 let WAIT = 1000;
 
@@ -22,11 +24,7 @@ function shareBtnToggle(shareBtn)
     // alert("You clicked the share button.");
     shareBtn.setAttribute("data-trigger-for", "action-panel-share");
     window.setTimeout(
-        function()
-        {
-            shareBtn.setAttribute("data-trigger-for", "blank");
-        },
-        5000
+        shareBtn.setAttribute, 5000, "data-trigger-for", "blank"
     );
 }
 
@@ -84,94 +82,62 @@ function inString(string, label)
     return inner;
 }
 
-// Change audio, speed and quality for videos presumed to be music.
-function adjustForMusic(player)
+async function getTitle(isPolymer)
 {
-    // For old (non-Polymer) layout.
-    let title = document.getElementsByClassName("eow-title").innerText.toLowerCase();
-    let inTitle = inString(title, "Title");
-
-    let channel = document.getElementsByClassName("yt-user-info")[0]
-        .innerText
-        .toLowerCase();
-
-    let inChannelName = inString(channel, "Channel");
-
-    let japChars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
-    let musicWords = [
-        japChars, "midi", "touhou", "music", "piano", "vocal", "arrange",
-        "theme",  "album", "toho", /feat\./, /.* - .*/, "soundtrack",
-        /.* ~ .*/, /(^|[^a-z])cover/, "song", /(^|[^a-z])op/, /(^|[^a-z])ep/,
-        "remix", "arrangement", /(^|[^a-z])c[0-9][0-9]/, "pv"
-        // /('s|[1-6]|stage) theme/
-    ];
-    let notMusicWords = [
-        "play", /(^|[^a-z])ep [0-9]/, "stream", "minecraft", "dlc", "games",
-        "online", "episode", /part [0-9]/, /episode [0-9]/,
-        "1cc", /(^|[^a-z])clear/, /#[0-9]/, "no miss", "no bomb", "scoring",
-        "gmod", "spellcard", "nmnb", "no deaths"
-    ];
-    let channelBlacklist = [
-        "sips", "yogscast", "mamamax", "computerphile", "numberphile",
-        "pewdiepie", "nakateleeli", "magiftw", "sixty symbols"
-    ];
-
-    // Short-circuits.
-    if (musicWords.some(inTitle) && !notMusicWords.some(inTitle)
-        && !channelBlacklist.some(inChannelName))
+    let title;
+    if (isPolymer)
     {
-        player.setVolume(25);
-        console.log("(YT Tweaks) Set volume to 25");
-        // player.setPlaybackRate(1);
+        let titleElement = document.getElementsByClassName("title")[0];
+        if (titleElement == null)
+        {
+            return new Promise(
+                function()
+                {
+                    setTimeout(getTitle, WAIT, isPolymer);
+                }
+            );
+        }
+        title = titleElement.innerText.toLowerCase();
     }
     else
     {
-        player.setVolume(100);
-        player.setPlaybackRate(2);
-        console.log("(YT Tweaks) Set volume to 100 and rate to 2");
+        title = document.getElementsByClassName("eow-title")[0]
+            .innerText.toLowerCase();
     }
+    return title;
 }
 
-// Change audio, speed and quality for videos presumed to be music.
-function adjustForMusic(player)
+async function getChannel(isPolymer)
 {
-    let nonPolymerTitle = document.getElementsByClassName("eow-title")[0];
-    let isPolymer = (nonPolymerTitle == null);
-    let title;
     let channel;
     if (isPolymer)
     {
-        setTimeout(function setTitle()
-            {
-                let titleElements = document.getElementsByClassName("title");
-                if (titleElements[0] == null)
+        let channelElement = document.getElementById("owner-name");
+        if (channelElement == null)
+        {
+            return new Promise(
+                function()
                 {
-                    setTimeout(setTitle, WAIT);
-                    return;
+                    setTimeout(getChannel, WAIT, isPolymer);
                 }
-                title = titleElements[0].innerText.toLowerCase();
-            }, WAIT
-        );
-
-        setTimeout(function setChannel()
-            {
-                let channelElement = document.getElementById("owner-name");
-                if (channelElement == null)
-                {
-                    setTimeout(setChannel, WAIT);
-                    return;
-                }
-                channel = channelElement.innerText.toLowerCase();
-            }, WAIT
-        );
-    }
+            );
+        }
+        channel = channelElement.innerText.toLowerCase();
     else
     {
-        title = nonPolymerTitle.innerText.toLowerCase();
         channel = document.getElementsByClassName("yt-user-info")[0]
-            .innerText
-            .toLowerCase();
+            .innerText.toLowerCase();
     }
+    return channel;
+}
+
+// Change audio, speed and quality for videos presumed to be music.
+async function adjustForMusic(player)
+{
+    let isPolymer = (document.getElementsByClassName("eow-title")[0] == null);
+    let [title, channel] = await Promise.all([
+        getTitle(isPolymer), getChannel(isPolymer)
+    ]);
     let inTitle = inString(title, "Title");
     let inChannelName = inString(channel, "Channel");
 
@@ -220,21 +186,17 @@ function adjustForMusic(player)
 //     }
 //     else
 //     {
-//         setTimeout(function()
-//             {
-//                 asyncSetQuality(player, quality);
-//             }, WAIT
-//         );
+//         setTimeout(asyncSetQuality, WAIT, player, quality);
 //     }
 // }
 
-(function()
+(async function()
 {
     "use strict";
     console.log("(YT Tweaks) Script running");
     disableShareOnLike();  // Does nothing on Polymer YouTube.
     console.log("(YT Tweaks) Disabled auto-share");
     let player = document.getElementById("movie_player");
-    adjustForMusic(player);
+    await adjustForMusic(player);
     // asyncSetQuality(player, "medium");
 })();
