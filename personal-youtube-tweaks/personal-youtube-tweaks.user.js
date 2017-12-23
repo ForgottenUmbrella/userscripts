@@ -2,17 +2,15 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.3
+// @version     3.0.5
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Make some variables `const`
-// * Use strict
-// * String interpolation
-// * Default parameters
-// * Use `for-of`
+// * Remove references to `window`
+// * Directly call adjustForMusic without awaiting
+// * Syntax error with missing brace
 
 const WAIT = 1000;
 
@@ -22,7 +20,7 @@ function shareButtonToggle(shareButton)
     "use strict";
     // alert("You clicked the share button.");
     shareButton.setAttribute("data-trigger-for", "action-panel-share");
-    window.setTimeout(
+    setTimeout(
         shareButton.setAttribute, 5000, "data-trigger-for", "blank"
     );
 }
@@ -65,7 +63,7 @@ function disableShareOnLike()
 
 function inString(string, label="")
 {
-    "use strict";
+    // "use strict";
     function inner(trigger)
     {
         const match = (string.indexOf(trigger) > -1);
@@ -121,6 +119,7 @@ async function getChannel(isPolymer)
             );
         }
         channel = channelElement.innerText.toLowerCase();
+    }
     else
     {
         channel = document.getElementsByClassName("yt-user-info")[0]
@@ -142,7 +141,7 @@ async function adjustForMusic(player)
     const inTitle = inString(title, "Title");
     const inChannelName = inString(channel, "Channel");
 
-    const JAPANESE = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
+    const JAPANESE = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/;
     const MUSIC_TERMS = [
         JAPANESE, "midi", "touhou", "music", "piano", "vocal", "arrange",
         "theme",  "album", "toho", /feat\./, /.* - .*/, "soundtrack",
@@ -198,6 +197,6 @@ async function adjustForMusic(player)
     disableShareOnLike();  // Does nothing on Polymer YouTube.
     console.log("(YT Tweaks) Disabled auto-share");
     let player = document.getElementById("movie_player");
-    await adjustForMusic(player);
+    adjustForMusic(player);
     // asyncSetQuality(player, "medium");
 })();
