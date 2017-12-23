@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.8
+// @version     3.0.9
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Attempt no. who-knows at getting it to work on Polymer
+// * Attempt no. who knows+1 at getting it to work on Polymer
 
 const WAIT = 1000;
 
@@ -16,7 +16,6 @@ const WAIT = 1000;
 function shareButtonToggle(shareButton)
 {
     "use strict";
-    // alert("You clicked the share button.");
     shareButton.setAttribute("data-trigger-for", "action-panel-share");
     setTimeout(
         shareButton.setAttribute, 5000, "data-trigger-for", "blank"
@@ -74,54 +73,62 @@ function inString(string, label="")
 function getTitle(isPolymer)
 {
     "use strict";
-    let title;
     if (isPolymer)
     {
         const titleElement = document.getElementsByClassName("title")[0];
-        // if (titleElement == null)
-        // {
+        if (titleElement == null)
+        {
         //     return new Promise(
         //         function()
         //         {
         //             setTimeout(getTitle, WAIT, isPolymer);
         //         }
         //     );
-        // }
-        title = titleElement.innerText.toLowerCase();
+            requestAnimationFrame(() => getTitle(isPolymer));
+        }
+        else
+        {
+        const title = titleElement.innerText.toLowerCase();
+        return title;
+        }
     }
     else
     {
-        title = document.getElementsByClassName("eow-title")[0]
+        const title = document.getElementsByClassName("eow-title")[0]
             .innerText.toLowerCase();
+        return title;
     }
-    return title;
 }
 
 // async function getChannel(isPolymer)
 function getChannel(isPolymer)
 {
     "use strict";
-    let channel;
     if (isPolymer)
     {
         const channelElement = document.getElementById("owner-name");
-        // if (channelElement == null)
-        // {
+        if (channelElement == null)
+        {
         //     return new Promise(
         //         function()
         //         {
         //             setTimeout(getChannel, WAIT, isPolymer);
         //         }
         //     );
-        // }
-        channel = channelElement.innerText.toLowerCase();
+            requestAnimationFrame(() => getChannel(isPolymer));
+        }
+        else
+        {
+        const channel = channelElement.innerText.toLowerCase();
+        return channel;
+        }
     }
     else
     {
-        channel = document.getElementsByClassName("yt-user-info")[0]
+        const channel = document.getElementsByClassName("yt-user-info")[0]
             .innerText.toLowerCase();
+        return channel;
     }
-    return channel;
 }
 
 // Change audio, speed and quality for videos presumed to be music.
@@ -197,6 +204,13 @@ function adjustForMusic(player)
     console.log("(YT Tweaks) Disabled auto-share");
     let player = document.getElementById("movie_player");
     // await adjustForMusic(player);
-    addEventListener("WebComponentsReady", () => adjustForMusic(player));
+    addEventListener(
+        "WebComponentsReady",
+        () =>
+        {
+            console.log("(YT Tweaks) WebComponentsReady event fired");
+            adjustForMusic(player);
+        }
+    );
     // asyncSetQuality(player, "medium");
 })();
