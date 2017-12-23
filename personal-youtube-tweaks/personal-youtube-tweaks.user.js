@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.26
+// @version     3.0.27
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Weird race-condition 0 length
+// * Final straw with Polymer BS
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
@@ -64,7 +64,7 @@ function inString(text, label="")
         const match = (text.indexOf(trigger) > -1);
         if (match)
         {
-            console.log(`${BANNER} ${label} trigger: ${trigger}`);
+            console.log(`${BANNER} ${label} trigger:`, trigger);
         }
         return match;
     }
@@ -82,14 +82,14 @@ function getTitle()
         console.log(`${BANNER} titleElements =`, titleElements);
         // if (!titleElements.length)
         // {
-        // //     return new Promise(
-        // //         function()
-        // //         {
-        // //             window.setTimeout(getTitle, WAIT);
-        // //         }
-        // //     );
-        //     console.log(`${BANNER} Requesting animation frame`);
-        //     requestAnimationFrame(() => title = getTitle());
+        //     return new Promise(
+        //         function()
+        //         {
+        //             window.setTimeout(getTitle, WAIT);
+        //         }
+        //     );
+        //     // console.log(`${BANNER} Requesting animation frame`);
+        //     // requestAnimationFrame(() => title = getTitle());
         // }
         // else
         // {
@@ -115,26 +115,25 @@ function getChannel()
     {
         const channelElement = document.getElementById("owner-name");
         console.log(`${BANNER} channelElement =`, channelElement);
-        if (channelElement == null)
-        {
+        // if (channelElement == null)
+        // {
         //     return new Promise(
         //         function()
         //         {
         //             window.setTimeout(getChannel, WAIT);
         //         }
         //     );
-            console.log(`${BANNER} Requesting animation frame`);
-            requestAnimationFrame(() => channel = getChannel());
-        }
-        else
-        {
-            console.log(`${BANNER} channelElement not null`);
+        //     // console.log(`${BANNER} Requesting animation frame`);
+        //     // requestAnimationFrame(() => channel = getChannel());
+        // }
+        // else
+        // {
+        //     console.log(`${BANNER} channelElement not null`);
             channel = channelElement.innerText.toLowerCase();
-        }
+        // }
     }
     else
     {
-        console.log(`${BANNER} channel not Polymer`);
         channel = document.getElementsByClassName("yt-user-info")[0]
             .innerText.toLowerCase();
     }
@@ -215,33 +214,41 @@ function adjustForMusic(player)
     console.log(`${BANNER} Disabled auto-share`);
     let player = document.getElementById("movie_player");
     // await adjustForMusic(player);
-    if (window.WebComponents)
-    {
-        document.addEventListener(
-            "WebComponentsReady",
-            () =>
-            {
-                console.log(`${BANNER} WebComponentsReady event fired`);
-                adjustForMusic(player);
-            }
-        );
-    }
-    else if (document.readyState === "interactive"
-        || document.readyState === "complete")
-    {
-        console.log(`${BANNER} readyState nonsense`);
-        adjustForMusic();
-    }
-    else
-    {
-        document.addEventListener(
-            "DOMContentLoaded",
-            () =>
-            {
-                console.log(`${BANNER} DOMContentLoaded fired`);
-                adjustForMusic();
-            }
-        );
-    }
+    // if (window.WebComponents)
+    // {
+    //     document.addEventListener(
+    //         "WebComponentsReady",
+    //         () =>
+    //         {
+    //             console.log(`${BANNER} WebComponentsReady event fired`);
+    //             adjustForMusic(player);
+    //         }
+    //     );
+    // }
+    // else if (document.readyState === "interactive"
+    //     || document.readyState === "complete")
+    // {
+    //     console.log(`${BANNER} readyState nonsense`);
+    //     adjustForMusic();
+    // }
+    // else
+    // {
+    //     document.addEventListener(
+    //         "DOMContentLoaded",
+    //         () =>
+    //         {
+    //             console.log(`${BANNER} DOMContentLoaded fired`);
+    //             adjustForMusic();
+    //         }
+    //     );
+    // }
+    document.addEventListener(
+        "dom-change",
+        function onDomChange()
+        {
+            document.removeEventListener("dom-change", onDomChange);
+            adjustForMusic();
+        }
+    );
     // asyncSetQuality(player, "medium");
 })();
