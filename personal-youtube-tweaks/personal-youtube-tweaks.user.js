@@ -2,15 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.5
+// @version     3.0.6
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Remove references to `window`
-// * Directly call adjustForMusic without awaiting
-// * Syntax error with missing brace
+// * Remove invalid "use strict"
 
 const WAIT = 1000;
 
@@ -63,7 +61,6 @@ function disableShareOnLike()
 
 function inString(string, label="")
 {
-    // "use strict";
     function inner(trigger)
     {
         const match = (string.indexOf(trigger) > -1);
