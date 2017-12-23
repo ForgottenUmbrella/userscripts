@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.9
+// @version     3.0.10
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Attempt no. who knows+1 at getting it to work on Polymer
+// * Attempt no. who knows+2 at getting it to work on Polymer
 
 const WAIT = 1000;
 
@@ -204,13 +204,13 @@ function adjustForMusic(player)
     console.log("(YT Tweaks) Disabled auto-share");
     let player = document.getElementById("movie_player");
     // await adjustForMusic(player);
-    addEventListener(
-        "WebComponentsReady",
-        () =>
-        {
-            console.log("(YT Tweaks) WebComponentsReady event fired");
+    // addEventListener(
+    //     "WebComponentsReady",
+    //     () =>
+    //     {
+    //         console.log("(YT Tweaks) WebComponentsReady event fired");
             adjustForMusic(player);
-        }
-    );
+        // }
+    // );
     // asyncSetQuality(player, "medium");
 })();
