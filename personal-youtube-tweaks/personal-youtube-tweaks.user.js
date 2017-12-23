@@ -2,80 +2,76 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.2
+// @version     3.0.3
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// Update descriptions
-// Make it work on Polymer YouTube?
+// * Make some variables `const`
+// * Use strict
+// * String interpolation
+// * Default parameters
+// * Use `for-of`
 
-// TODO
-// const
-// anonymous functions to arrows
-// default params
-
-let WAIT = 1000;
+const WAIT = 1000;
 
 // Modified from http://userscripts-mirror.org/scripts/review/174719.
-function shareBtnToggle(shareBtn)
+function shareButtonToggle(shareButton)
 {
+    "use strict";
     // alert("You clicked the share button.");
-    shareBtn.setAttribute("data-trigger-for", "action-panel-share");
+    shareButton.setAttribute("data-trigger-for", "action-panel-share");
     window.setTimeout(
-        shareBtn.setAttribute, 5000, "data-trigger-for", "blank"
+        shareButton.setAttribute, 5000, "data-trigger-for", "blank"
     );
 }
 
 // Also modified from the above source.
 function disableShareOnLike()
 {
-    let keyword = "action-panel-trigger";
-    let panelBtns = (function()
-    {
-        let result = [];
-        let btns = document.getElementsByTagName("button");
-        for (let i=0; i < btns.length; i++)
+    "use strict";
+    let panelButtons = (
+        function()
         {
-            if (btns[i].className.indexOf(keyword) != -1)
+            let result = [];
+            let buttons = document.getElementsByTagName("button");
+            for (let button of buttons)
             {
-                result.push(btns[i]);
+                if (button.className.indexOf("action-panel-trigger") != -1)
+                {
+                    result.push(button);
+                }
             }
+            return result;
         }
-        return result;
-    })();
-    let shareBtn;
-    let dataTrigger;
-    for (let i = 0; i < panelBtns.length; i++)
+    )();
+    for (let button of panelButtons)
     {
-        dataTrigger = panelBtns[i].getAttribute("data-trigger-for");
+        const dataTrigger = button.getAttribute("data-trigger-for");
         if (dataTrigger == "action-panel-share")
         {
-            shareBtn = panelBtns[i];
-            shareBtn.setAttribute("data-trigger-for", "blank");
-            shareBtn.addEventListener(
+            let shareButton = button;
+            shareButton.setAttribute("data-trigger-for", "blank");
+            shareButton.addEventListener(
                 "click", function()
                 {
-                    shareBtnToggle(shareBtn);
+                    shareButtonToggle(shareButton);
                 }, false
             );
         }
     }
 }
 
-function inString(string, label)
+function inString(string, label="")
 {
-    if (label === undefined)
-    {
-        label = "";
-    }
+    "use strict";
     function inner(trigger)
     {
-        let match = (string.indexOf(trigger) > -1);
+        const match = (string.indexOf(trigger) > -1);
         if (match)
         {
-            console.log("(YT Tweaks) " + label + " trigger: " + trigger);
+            console.log(`(YT Tweaks) ${label} trigger: ${trigger}`);
         }
         return match;
     }
@@ -84,10 +80,11 @@ function inString(string, label)
 
 async function getTitle(isPolymer)
 {
+    "use strict";
     let title;
     if (isPolymer)
     {
-        let titleElement = document.getElementsByClassName("title")[0];
+        const titleElement = document.getElementsByClassName("title")[0];
         if (titleElement == null)
         {
             return new Promise(
@@ -109,10 +106,11 @@ async function getTitle(isPolymer)
 
 async function getChannel(isPolymer)
 {
+    "use strict";
     let channel;
     if (isPolymer)
     {
-        let channelElement = document.getElementById("owner-name");
+        const channelElement = document.getElementById("owner-name");
         if (channelElement == null)
         {
             return new Promise(
@@ -134,36 +132,39 @@ async function getChannel(isPolymer)
 // Change audio, speed and quality for videos presumed to be music.
 async function adjustForMusic(player)
 {
-    let isPolymer = (document.getElementsByClassName("eow-title")[0] == null);
+    "use strict";
+    const isPolymer = (
+        document.getElementsByClassName("eow-title")[0] == null
+    );
     let [title, channel] = await Promise.all([
         getTitle(isPolymer), getChannel(isPolymer)
     ]);
-    let inTitle = inString(title, "Title");
-    let inChannelName = inString(channel, "Channel");
+    const inTitle = inString(title, "Title");
+    const inChannelName = inString(channel, "Channel");
 
-    let japChars = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
-    let musicWords = [
-        japChars, "midi", "touhou", "music", "piano", "vocal", "arrange",
+    const JAPANESE = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf/]/;
+    const MUSIC_TERMS = [
+        JAPANESE, "midi", "touhou", "music", "piano", "vocal", "arrange",
         "theme",  "album", "toho", /feat\./, /.* - .*/, "soundtrack",
         /.* ~ .*/, /(^|[^a-z])cover/, "song", /(^|[^a-z])op/, /(^|[^a-z])ep/,
         "remix", "arrangement", /(^|[^a-z])c[0-9][0-9]/, "pv"
         // /('s|[1-6]|stage) theme/
     ];
-    let notMusicWords = [
+    const NOT_MUSIC_TERMS = [
         "play", /(^|[^a-z])ep [0-9]/, "stream", "minecraft", "dlc", "games",
         "online", "episode", /part [0-9]/, /episode [0-9]/,
         "1cc", /(^|[^a-z])clear/, /#[0-9]/, "no miss", "no bomb", "scoring",
         "gmod", "spellcard", "nmnb", "no deaths"
     ];
-    let channelBlacklist = [
+    const CHANNEL_BLACKLIST = [
         "sips", "yogscast", "mamamax", "computerphile", "numberphile",
         "pewdiepie", "nakateleeli", "magiftw", "sixty symbols"
     ];
 
-    let isMusic = (
-        musicWords.some(inTitle)
-        && !notMusicWords.some(inTitle)
-        && !channelBlacklist.some(inChannelName)
+    const isMusic = (
+        MUSIC_TERMS.some(inTitle)
+        && !NOT_MUSIC_TERMS.some(inTitle)
+        && !CHANNEL_BLACKLIST.some(inChannelName)
     );
     if (isMusic)
     {
