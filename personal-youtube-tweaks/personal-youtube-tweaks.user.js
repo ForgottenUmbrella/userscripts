@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.18
+// @version     3.0.19
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * More debugging
+// * Attempt to fix undefined getTitle and getChannel
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
@@ -75,6 +75,7 @@ function inString(text, label="")
 function getTitle()
 {
     "use strict";
+    let title;
     if (isPolymer)
     {
         const titleElements = document.getElementsByClassName("title");
@@ -86,26 +87,26 @@ function getTitle()
         //             window.setTimeout(getTitle, WAIT);
         //         }
         //     );
-            requestAnimationFrame(() => getTitle());
+            requestAnimationFrame(() => title = getTitle());
         }
         else
         {
-            const title = titleElements[0].innerText.toLowerCase();
-            return title;
+            title = titleElements[0].innerText.toLowerCase();
         }
     }
     else
     {
-        const title = document.getElementsByClassName("eow-title")[0]
+        title = document.getElementsByClassName("eow-title")[0]
             .innerText.toLowerCase();
-        return title;
     }
+    return title;
 }
 
 // async function getChannel()
 function getChannel()
 {
     "use strict";
+    let channel;
     if (isPolymer)
     {
         const channelElement = document.getElementById("owner-name");
@@ -117,20 +118,19 @@ function getChannel()
         //             window.setTimeout(getChannel, WAIT);
         //         }
         //     );
-            requestAnimationFrame(() => getChannel());
+            requestAnimationFrame(() => channel = getChannel());
         }
         else
         {
-            const channel = channelElement.innerText.toLowerCase();
-            return channel;
+            channel = channelElement.innerText.toLowerCase();
         }
     }
     else
     {
-        const channel = document.getElementsByClassName("yt-user-info")[0]
+        channel = document.getElementsByClassName("yt-user-info")[0]
             .innerText.toLowerCase();
-        return channel;
     }
+    return channel;
 }
 
 // Change audio, speed and quality for videos presumed to be music.
@@ -138,7 +138,6 @@ function getChannel()
 function adjustForMusic(player)
 {
     "use strict";
-    console.log(`${BANNER} adjustForMusic called`);
     console.log(`${BANNER} isPolymer = ${isPolymer}`);
     // let [title, channel] = await Promise.all([
     //     getTitle(), getChannel()
@@ -149,7 +148,6 @@ function adjustForMusic(player)
     console.log(`${BANNER} channel = ${channel}`);
     const inTitle = inString(title, "Title");
     const inChannelName = inString(channel, "Channel");
-    console.log(`${BANNER} Is string undefined here?`);
 
     const JAPANESE = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/;
     const MUSIC_TERMS = [
