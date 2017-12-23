@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.6
+// @version     3.0.7
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Remove invalid "use strict"
+// * Await adjustForMusic again (I really don't know how to async)
 
 const WAIT = 1000;
 
@@ -194,6 +194,6 @@ async function adjustForMusic(player)
     disableShareOnLike();  // Does nothing on Polymer YouTube.
     console.log("(YT Tweaks) Disabled auto-share");
     let player = document.getElementById("movie_player");
-    adjustForMusic(player);
+    await adjustForMusic(player);
     // asyncSetQuality(player, "medium");
 })();
