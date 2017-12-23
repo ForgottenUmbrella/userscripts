@@ -2,13 +2,14 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.23
+// @version     3.0.24
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
 // * More debugging
+// * Replace window with document for addEventListener
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
@@ -79,7 +80,7 @@ function getTitle()
     if (isPolymer)
     {
         const titleElements = document.getElementsByClassName("title");
-        console.log(`${BANNER} titleElements = ${titleElements}`);
+        console.log(`${BANNER} titleElements =`, titleElements);
         if (!titleElements.length)
         {
         //     return new Promise(
@@ -111,7 +112,7 @@ function getChannel()
     if (isPolymer)
     {
         const channelElement = document.getElementById("owner-name");
-        console.log(`${BANNER} channelElement = ${channelElement}`);
+        console.log(`${BANNER} channelElement =`, channelElement);
         if (channelElement == null)
         {
         //     return new Promise(
@@ -140,14 +141,14 @@ function getChannel()
 function adjustForMusic(player)
 {
     "use strict";
-    console.log(`${BANNER} isPolymer = ${isPolymer}`);
+    console.log(`${BANNER} isPolymer =`, isPolymer);
     // let [title, channel] = await Promise.all([
     //     getTitle(), getChannel()
     // ]);
     const title = getTitle();
-    console.log(`${BANNER} title = ${title}`);
+    console.log(`${BANNER} title =`, title);
     const channel = getChannel();
-    console.log(`${BANNER} channel = ${channel}`);
+    console.log(`${BANNER} channel =`, channel);
     const inTitle = inString(title, "Title");
     const inChannelName = inString(channel, "Channel");
 
@@ -211,7 +212,7 @@ function adjustForMusic(player)
     // await adjustForMusic(player);
     if (window.WebComponents)
     {
-        window.addEventListener(
+        document.addEventListener(
             "WebComponentsReady",
             () =>
             {
@@ -228,7 +229,7 @@ function adjustForMusic(player)
     }
     else
     {
-        window.addEventListener(
+        document.addEventListener(
             "DOMContentLoaded",
             () =>
             {
