@@ -2,18 +2,19 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.12
+// @version     3.0.13
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Change method of detecting whether the page is Polymer or not
 // * Additional debug log
+// * Don't reference undefined 0th element
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
 const isPolymer = window.Polymer != null;
+console.log(`${BANNER} Polymer? ${isPolymer}`);
 
 // Modified from http://userscripts-mirror.org/scripts/review/174719.
 function shareButtonToggle(shareButton)
@@ -78,8 +79,8 @@ function getTitle()
     "use strict";
     if (isPolymer)
     {
-        const titleElement = document.getElementsByClassName("title")[0];
-        if (titleElement == null)
+        const titleElements = document.getElementsByClassName("title");
+        if (!titleElements.length)
         {
         //     return new Promise(
         //         function()
@@ -91,8 +92,8 @@ function getTitle()
         }
         else
         {
-        const title = titleElement.innerText.toLowerCase();
-        return title;
+            const title = titleElements[0].innerText.toLowerCase();
+            return title;
         }
     }
     else
@@ -122,8 +123,8 @@ function getChannel()
         }
         else
         {
-        const channel = channelElement.innerText.toLowerCase();
-        return channel;
+            const channel = channelElement.innerText.toLowerCase();
+            return channel;
         }
     }
     else
