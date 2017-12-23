@@ -2,18 +2,17 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.17
+// @version     3.0.18
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// Forgot to NOT the Polymer detection
+// * More debugging
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
 const isPolymer = !document.getElementsByClassName("eow-title").length;
-console.log(`${BANNER} Polymer? ${isPolymer}`);
 
 // Modified from http://userscripts-mirror.org/scripts/review/174719.
 function shareButtonToggle(shareButton)
@@ -58,11 +57,11 @@ function disableShareOnLike()
     }
 }
 
-function inString(string, label="")
+function inString(text, label="")
 {
     function inner(trigger)
     {
-        const match = (string.indexOf(trigger) > -1);
+        const match = (text.indexOf(trigger) > -1);
         if (match)
         {
             console.log(`${BANNER} ${label} trigger: ${trigger}`);
@@ -140,13 +139,17 @@ function adjustForMusic(player)
 {
     "use strict";
     console.log(`${BANNER} adjustForMusic called`);
+    console.log(`${BANNER} isPolymer = ${isPolymer}`);
     // let [title, channel] = await Promise.all([
     //     getTitle(), getChannel()
     // ]);
     const title = getTitle();
+    console.log(`${BANNER} title = ${title}`);
     const channel = getChannel();
+    console.log(`${BANNER} channel = ${channel}`);
     const inTitle = inString(title, "Title");
     const inChannelName = inString(channel, "Channel");
+    console.log(`${BANNER} Is string undefined here?`);
 
     const JAPANESE = /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]/;
     const MUSIC_TERMS = [
