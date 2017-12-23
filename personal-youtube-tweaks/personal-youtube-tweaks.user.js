@@ -2,13 +2,14 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.20
+// @version     3.0.21
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Attempt again with event listeners
+// * More debugging
+// * Remove unnecessary async
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
@@ -79,6 +80,7 @@ function getTitle()
     if (isPolymer)
     {
         const titleElements = document.getElementsByClassName("title");
+        console.log(`${BANNER} titleElements = ${titleElements}`);
         if (!titleElements.length)
         {
         //     return new Promise(
@@ -110,6 +112,7 @@ function getChannel()
     if (isPolymer)
     {
         const channelElement = document.getElementById("owner-name");
+        console.log(`${BANNER} channelElement = ${channelElement}`);
         if (channelElement == null)
         {
         //     return new Promise(
@@ -199,7 +202,7 @@ function adjustForMusic(player)
 //     }
 // }
 
-(async function()
+(function()
 {
     "use strict";
     console.log(`${BANNER} Script running`);
