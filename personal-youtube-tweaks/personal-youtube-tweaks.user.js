@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.22
+// @version     3.0.23
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * More wrestling with event listeners
+// * More debugging
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
@@ -223,11 +223,19 @@ function adjustForMusic(player)
     else if (document.readyState === "interactive"
         || document.readyState === "complete")
     {
+        console.log(`${BANNER} readyState nonsense`);
         adjustForMusic();
     }
     else
     {
-        window.addEventListener("DOMContentLoaded", adjustForMusic);
+        window.addEventListener(
+            "DOMContentLoaded",
+            () =>
+            {
+                console.log(`${BANNER} DOMContentLoaded fired`);
+                adjustForMusic();
+            }
+        );
     }
     // asyncSetQuality(player, "medium");
 })();
