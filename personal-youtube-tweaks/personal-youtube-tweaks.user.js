@@ -2,17 +2,17 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.15
+// @version     3.0.16
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// Change method of checking Polymer AGAIN
+// If it ain't broke, don't fix it (reset Polymer detection method)
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
-const isPolymer = Boolean(window.WebComponents);
+const isPolymer = Boolean(document.getElementsByClassName("eow-title").length);
 console.log(`${BANNER} Polymer? ${isPolymer}`);
 
 // Modified from http://userscripts-mirror.org/scripts/review/174719.
