@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.7
+// @version     3.0.8
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Await adjustForMusic again (I really don't know how to async)
+// * Attempt no. who-knows at getting it to work on Polymer
 
 const WAIT = 1000;
 
@@ -50,10 +50,7 @@ function disableShareOnLike()
             let shareButton = button;
             shareButton.setAttribute("data-trigger-for", "blank");
             shareButton.addEventListener(
-                "click", function()
-                {
-                    shareButtonToggle(shareButton);
-                }, false
+                "click", () => shareButtonToggle(shareButton), false
             );
         }
     }
@@ -73,22 +70,23 @@ function inString(string, label="")
     return inner;
 }
 
-async function getTitle(isPolymer)
+// async function getTitle(isPolymer)
+function getTitle(isPolymer)
 {
     "use strict";
     let title;
     if (isPolymer)
     {
         const titleElement = document.getElementsByClassName("title")[0];
-        if (titleElement == null)
-        {
-            return new Promise(
-                function()
-                {
-                    setTimeout(getTitle, WAIT, isPolymer);
-                }
-            );
-        }
+        // if (titleElement == null)
+        // {
+        //     return new Promise(
+        //         function()
+        //         {
+        //             setTimeout(getTitle, WAIT, isPolymer);
+        //         }
+        //     );
+        // }
         title = titleElement.innerText.toLowerCase();
     }
     else
@@ -99,22 +97,23 @@ async function getTitle(isPolymer)
     return title;
 }
 
-async function getChannel(isPolymer)
+// async function getChannel(isPolymer)
+function getChannel(isPolymer)
 {
     "use strict";
     let channel;
     if (isPolymer)
     {
         const channelElement = document.getElementById("owner-name");
-        if (channelElement == null)
-        {
-            return new Promise(
-                function()
-                {
-                    setTimeout(getChannel, WAIT, isPolymer);
-                }
-            );
-        }
+        // if (channelElement == null)
+        // {
+        //     return new Promise(
+        //         function()
+        //         {
+        //             setTimeout(getChannel, WAIT, isPolymer);
+        //         }
+        //     );
+        // }
         channel = channelElement.innerText.toLowerCase();
     }
     else
@@ -126,15 +125,18 @@ async function getChannel(isPolymer)
 }
 
 // Change audio, speed and quality for videos presumed to be music.
-async function adjustForMusic(player)
+// async function adjustForMusic(player)
+function adjustForMusic(player)
 {
     "use strict";
     const isPolymer = (
         document.getElementsByClassName("eow-title")[0] == null
     );
-    let [title, channel] = await Promise.all([
-        getTitle(isPolymer), getChannel(isPolymer)
-    ]);
+    // let [title, channel] = await Promise.all([
+    //     getTitle(isPolymer), getChannel(isPolymer)
+    // ]);
+    const title = getTitle(isPolymer);
+    const channel = getChannel(isPolymer);
     const inTitle = inString(title, "Title");
     const inChannelName = inString(channel, "Channel");
 
@@ -194,6 +196,7 @@ async function adjustForMusic(player)
     disableShareOnLike();  // Does nothing on Polymer YouTube.
     console.log("(YT Tweaks) Disabled auto-share");
     let player = document.getElementById("movie_player");
-    await adjustForMusic(player);
+    // await adjustForMusic(player);
+    addEventListener("WebComponentsReady", () => adjustForMusic(player));
     // asyncSetQuality(player, "medium");
 })();
