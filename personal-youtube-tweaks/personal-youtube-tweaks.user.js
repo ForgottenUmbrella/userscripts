@@ -2,15 +2,16 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.10
+// @version     3.0.11
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Attempt no. who knows+2 at getting it to work on Polymer
+// * Insignificant changes to debug logging
 
 const WAIT = 1000;
+const BANNER = "(YT Tweaks)"
 
 // Modified from http://userscripts-mirror.org/scripts/review/174719.
 function shareButtonToggle(shareButton)
@@ -62,7 +63,7 @@ function inString(string, label="")
         const match = (string.indexOf(trigger) > -1);
         if (match)
         {
-            console.log(`(YT Tweaks) ${label} trigger: ${trigger}`);
+            console.log(`${BANNER} ${label} trigger: ${trigger}`);
         }
         return match;
     }
@@ -136,6 +137,7 @@ function getChannel(isPolymer)
 function adjustForMusic(player)
 {
     "use strict";
+    console.log(`${BANNER} adjustForMusic called`);
     const isPolymer = (
         document.getElementsByClassName("eow-title")[0] == null
     );
@@ -174,13 +176,13 @@ function adjustForMusic(player)
     if (isMusic)
     {
         player.setVolume(25);
-        console.log("(YT Tweaks) Set volume to 25");
+        console.log(`${BANNER} Set volume to 25`);
     }
     else
     {
         player.setVolume(100);
         player.setPlaybackRate(2);
-        console.log("(YT Tweaks) Set volume to 100 and rate to 2");
+        console.log(`${BANNER} Set volume to 100 and rate to 2`);
     }
 }
 
@@ -199,16 +201,16 @@ function adjustForMusic(player)
 (async function()
 {
     "use strict";
-    console.log("(YT Tweaks) Script running");
+    console.log(`${BANNER} Script running`);
     disableShareOnLike();  // Does nothing on Polymer YouTube.
-    console.log("(YT Tweaks) Disabled auto-share");
+    console.log(`${BANNER} Disabled auto-share`);
     let player = document.getElementById("movie_player");
     // await adjustForMusic(player);
     // addEventListener(
     //     "WebComponentsReady",
     //     () =>
     //     {
-    //         console.log("(YT Tweaks) WebComponentsReady event fired");
+    //         console.log(`${BANNER} WebComponentsReady event fired`);
             adjustForMusic(player);
         // }
     // );
