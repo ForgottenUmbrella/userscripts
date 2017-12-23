@@ -2,13 +2,13 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.25
+// @version     3.0.26
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * More debugging
+// * Weird race-condition 0 length
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
@@ -80,22 +80,22 @@ function getTitle()
     {
         const titleElements = document.getElementsByClassName("title");
         console.log(`${BANNER} titleElements =`, titleElements);
-        if (!titleElements.length)
-        {
-        //     return new Promise(
-        //         function()
-        //         {
-        //             window.setTimeout(getTitle, WAIT);
-        //         }
-        //     );
-            console.log(`${BANNER} Requesting animation frame`);
-            requestAnimationFrame(() => title = getTitle());
-        }
-        else
-        {
-            console.log(`${BANNER} titleElements unempty`);
+        // if (!titleElements.length)
+        // {
+        // //     return new Promise(
+        // //         function()
+        // //         {
+        // //             window.setTimeout(getTitle, WAIT);
+        // //         }
+        // //     );
+        //     console.log(`${BANNER} Requesting animation frame`);
+        //     requestAnimationFrame(() => title = getTitle());
+        // }
+        // else
+        // {
+        //     console.log(`${BANNER} titleElements unempty`);
             title = titleElements[0].innerText.toLowerCase();
-        }
+        // }
     }
     else
     {
