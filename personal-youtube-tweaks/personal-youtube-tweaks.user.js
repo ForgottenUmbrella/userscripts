@@ -2,23 +2,25 @@
 // @name        Personal YouTube Tweaks
 // @description Speed up videos, lower music volume and don't switch to Share tab.
 // @include     *://www.youtube.com/watch?*
-// @version     3.0.11
+// @version     3.0.12
 // @author      ForgottenUmbrella, EdLolington2
 // @namespace   https://greasyfork.org/users/83187
 // ==/UserScript==
 
 // CHANG'E LOG (are you watching?):
-// * Insignificant changes to debug logging
+// * Change method of detecting whether the page is Polymer or not
+// * Additional debug log
 
 const WAIT = 1000;
 const BANNER = "(YT Tweaks)"
+const isPolymer = window.Polymer != null;
 
 // Modified from http://userscripts-mirror.org/scripts/review/174719.
 function shareButtonToggle(shareButton)
 {
     "use strict";
     shareButton.setAttribute("data-trigger-for", "action-panel-share");
-    setTimeout(
+    window.setTimeout(
         shareButton.setAttribute, 5000, "data-trigger-for", "blank"
     );
 }
@@ -70,8 +72,8 @@ function inString(string, label="")
     return inner;
 }
 
-// async function getTitle(isPolymer)
-function getTitle(isPolymer)
+// async function getTitle()
+function getTitle()
 {
     "use strict";
     if (isPolymer)
@@ -82,10 +84,10 @@ function getTitle(isPolymer)
         //     return new Promise(
         //         function()
         //         {
-        //             setTimeout(getTitle, WAIT, isPolymer);
+        //             window.setTimeout(getTitle, WAIT);
         //         }
         //     );
-            requestAnimationFrame(() => getTitle(isPolymer));
+            requestAnimationFrame(() => getTitle());
         }
         else
         {
@@ -101,8 +103,8 @@ function getTitle(isPolymer)
     }
 }
 
-// async function getChannel(isPolymer)
-function getChannel(isPolymer)
+// async function getChannel()
+function getChannel()
 {
     "use strict";
     if (isPolymer)
@@ -113,10 +115,10 @@ function getChannel(isPolymer)
         //     return new Promise(
         //         function()
         //         {
-        //             setTimeout(getChannel, WAIT, isPolymer);
+        //             window.setTimeout(getChannel, WAIT);
         //         }
         //     );
-            requestAnimationFrame(() => getChannel(isPolymer));
+            requestAnimationFrame(() => getChannel());
         }
         else
         {
@@ -138,14 +140,11 @@ function adjustForMusic(player)
 {
     "use strict";
     console.log(`${BANNER} adjustForMusic called`);
-    const isPolymer = (
-        document.getElementsByClassName("eow-title")[0] == null
-    );
     // let [title, channel] = await Promise.all([
-    //     getTitle(isPolymer), getChannel(isPolymer)
+    //     getTitle(), getChannel()
     // ]);
-    const title = getTitle(isPolymer);
-    const channel = getChannel(isPolymer);
+    const title = getTitle();
+    const channel = getChannel();
     const inTitle = inString(title, "Title");
     const inChannelName = inString(channel, "Channel");
 
@@ -184,6 +183,7 @@ function adjustForMusic(player)
         player.setPlaybackRate(2);
         console.log(`${BANNER} Set volume to 100 and rate to 2`);
     }
+    console.log(`${BANNER} adjustForMusic complete`);
 }
 
 // function asyncSetQuality(player, quality)
@@ -194,7 +194,7 @@ function adjustForMusic(player)
 //     }
 //     else
 //     {
-//         setTimeout(asyncSetQuality, WAIT, player, quality);
+//         window.setTimeout(asyncSetQuality, WAIT, player, quality);
 //     }
 // }
 
@@ -206,7 +206,7 @@ function adjustForMusic(player)
     console.log(`${BANNER} Disabled auto-share`);
     let player = document.getElementById("movie_player");
     // await adjustForMusic(player);
-    // addEventListener(
+    // window.addEventListener(
     //     "WebComponentsReady",
     //     () =>
     //     {
