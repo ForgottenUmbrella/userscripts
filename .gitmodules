@@ -1,0 +1,3 @@
+[submodule "ddg-go"]
+	path = ddg-go
+	url = ./ddg-go
