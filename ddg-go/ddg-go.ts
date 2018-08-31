@@ -7,12 +7,6 @@
 // @match https://duckduckgo.com
 // ==/UserScript==
 
-// Some schools' proxy servers interfere with DDG's privacy measures, so
-// students have to resort to Google. This userscript seeks to automate
-// that process.
-// It is recommended that users don't sign in to Google, or use a
-// container to protect their privacy.
-
 // Return a URL for searching Google.
 function googleSearchUrl(query: string): string {
     const base = "https://www.google.com";
