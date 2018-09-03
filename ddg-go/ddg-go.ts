@@ -3,8 +3,8 @@
 // @description Try to search DuckDuckGo, and if it fails, use Google instead.
 // @author ForgottenUmbrella
 // @namespace https://greasyfork.org/users/83187
-// @version 1.0.1
-// @match https://duckduckgo.com
+// @version 1.0.2
+// @match *://duckduckgo.com/*
 // ==/UserScript==
 
 // Return a URL for searching Google.
