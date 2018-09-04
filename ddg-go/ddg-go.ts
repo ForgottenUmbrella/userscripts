@@ -3,7 +3,7 @@
 // @description Try to search DuckDuckGo, and if it fails, use Google instead.
 // @author ForgottenUmbrella
 // @namespace https://greasyfork.org/users/83187
-// @version 1.0.3
+// @version 1.0.4
 // @match *://duckduckgo.com/*
 // ==/UserScript==
 
@@ -46,6 +46,6 @@ function goto(url: string): void {
 (() => {
     const failed = isChrome() ? chromePrivacyError() : firefoxProxyError();
     if (failed) {
-        goto(googleSearchUrl(ddgQuery(location.href)));
+        goto(googleSearchUrl(ddgQuery(location.search)));
     }
 })();
