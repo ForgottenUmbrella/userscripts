@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         View Full Twitter Image
-// @version      1.2.5
+// @version      2.0.0
 // @description  Undo Twitter's insistence to down-res images when viewing on its dedicated page and add a button to download the full image without the weird file extensions which don't count as actual images.
 // @author       ForgottenUmbrella
 // @match        https://pbs.twimg.com/media/*
@@ -9,17 +9,33 @@
 // @namespace    https://greasyfork.org/users/83187
 // ==/UserScript==
 
-// function createButton(text, func) {
-//     "use strict";
-//     var button = document.createElement("button");
-//     button.value = text;
-//     button.onclick = func;
-//     document.body.appendChild(button);
-// }
+"use strict";
 
+// Returns the URL to the original image file, given a `location` object.
+function ogImageUrl(location) {
+    let url = location.href;
+    const isNewFormat = location.search.length > 0;
+    if (isNewFormat) {
+        // The old URL format is https://pbs.twimg/media/hash.jpg:orig.
+        // The new URL format is https://pbs.twimg.com/media/hash?format=jpg&name=orig.
+        let params = new URLSearchParams(url.search);
+        params.set("name", "orig");
+        url.search = params.toString();
+        return url;
+    }
+    return url.replace(":large", "") + ":orig";
+}
+
+// Returns the filename of the original image, given a `location` to said image.
+function imageName(location) {
+    const filename = location.pathname.split("/").pop();
+    // Remove the ":orig" tag if Twitter is using the old URL format.
+    return filename.replace(":orig", "");
+}
+
+// Saves the webpage/file being viewed as `filename`.
 function download(filename) {
-    "use strict";
-    var element = document.createElement("a");
+    let element = document.createElement("a");
     // The `download` attribute only works if `href` is set.
     element.href = location.href;
     element.download = filename;
@@ -29,75 +45,17 @@ function download(filename) {
     document.body.removeChild(element);
 }
 
-// function domCreate(type, after, func, text, style) {
-//     "use strict";
-//     var element = document.createElement(type);
-//     document.body.insertBefore(element, after);
-//     if (typeof func !== "undefined") {
-//         element.onclick = func;
-//     }
-//     if (typeof text !== "undefined") {
-//         var t = document.createTextNode(text);
-//         element.appendChild(t);
-//     }
-//     if (typeof style !== "undefined") {
-//         element.style.height = style.height;
-//         element.style.width = style.width;
-//         element.style.marginLeft = style.margin_left;
-//         element.style.marginRight = style.margin_right;
-//         element.style.marginTop = style.margin_top;
-//         element.style.marginBottom = style.margin_bottom;
-//     }
-//     return element;
-// }
-
-// function downloadPic() {
-//     "use strict";
-//     var link = document.createElement("a");
-//     var notFilename = "https://pbs.twimg.com/media/";
-//     var notFiletype = ":orig";
-//     var filename = location.href.slice(
-//         notFilename.length, location.href.length - notFiletype.length);
-//     link.href = location.href;
-//     link.setAttribute("download", filename);
-//     link.click();
-// }
-
-// function iqdbSearch() {
-//     "use strict";
-//     location.href = "https://iqdb.org?url=" + location.href;
-// }
-
-(function() {
-    "use strict";
-    console.log("(Full Image) Running.");
-    if (location.href.includes(":large")) {
-        console.log("(Full Image) Will replace large with original.");
-        location.href = location.href.replace(":large", ":orig");
-    } else if (!location.href.includes(":orig")) {
-        console.log("(Full Image) Will change URL to original.");
-        location.href += ":orig";
-    }
-
-    var spacing = document.createElement("p");
-    var image = document.getElementsByTagName("img")[0];
-    document.body.insertBefore(spacing, image);
-
-    var button = document.createElement("button");
-    button.innerHTML = "Download";
-    var filename = location.href.slice(
-        "https://pbs.twimg.com/media/".length,
-        location.href.length - ":orig".length
-    );
-    button.onclick = function() {
-        download(filename);
-    };
-    document.body.insertBefore(button, spacing);
-    // On Chrome, the button appears atop the image; on Firefox, to the left.
-
-    // var spacing = domCreate("p", image);
-    // var btn = domCreate("button", spacing, downloadPic, "Download");
-    // var btn_2 = domCreate(
-    //     "button", spacing, iqdbSearch, "IQDB Search", {
-    //             margin_left: "20px"});
-})();
+// View original image file.
+const isOgImage = location.href.includes("orig");
+if (!isOgImage) {
+    location.assign(ogImageUrl(location));
+}
+// Add spacing between image and download button.
+const image = document.getElementsByTagName("img")[0];
+const spacing = document.createElement("p");
+document.body.insertBefore(spacing, image);
+// Add download button.
+let button = document.createElement("button");
+button.innerHTML = "Download";
+button.onclick = () => void download(imageName(location));
+document.body.insertBefore(button, spacing);
