@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         View Full Twitter Image
-// @version      2.0.0
+// @version      2.0.1
 // @description  Undo Twitter's insistence to down-res images when viewing on its dedicated page and add a button to download the full image without the weird file extensions which don't count as actual images.
 // @author       ForgottenUmbrella
 // @match        https://pbs.twimg.com/media/*
@@ -11,19 +11,19 @@
 
 "use strict";
 
-// Returns the URL to the original image file, given a `location` object.
+// Returns the URL to the original image file (as a string), given a `location` object.
 function ogImageUrl(location) {
-    let url = location.href;
-    const isNewFormat = location.search.length > 0;
+    let url = new URL(location.href);
+    const isNewFormat = url.search.length > 0;
     if (isNewFormat) {
         // The old URL format is https://pbs.twimg/media/hash.jpg:orig.
         // The new URL format is https://pbs.twimg.com/media/hash?format=jpg&name=orig.
         let params = new URLSearchParams(url.search);
         params.set("name", "orig");
         url.search = params.toString();
-        return url;
+        return url.href;
     }
-    return url.replace(":large", "") + ":orig";
+    return url.href.replace(":large", "") + ":orig";
 }
 
 // Returns the filename of the original image, given a `location` to said image.
